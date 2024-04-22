@@ -110,23 +110,34 @@ class companyController extends Controller
             'website' => 'nullable|url',
         ]);
 
-        // Procesar el archivo
-        $archivo = $request->file('logo');
-        $nombreArchivo = $archivo->getClientOriginalName(); // Nombre original del archivo
-        $extension = $archivo->getClientOriginalExtension(); // Extensión del archivo
-        // Que el nombre me quede sin el http://127.0.0.1:8000/storage/
-        $nombreGuardado = pathinfo($nombreArchivo, PATHINFO_FILENAME) . '_' . time() . '.' . $extension; // Generar un nombre único para el archivo
-        $rutaArchivo = $nombreGuardado; // Ruta donde se guardará el archivo
+        if ($request->hasFile('logo')) {
+            $archivo = $request->file('logo');
+            $nombreArchivo = $archivo->getClientOriginalName();
+            // Obtener el contenido base64 del archivo
+            $base64 = base64_encode(file_get_contents($archivo));
+            // Reemplazar espacios y caracteres especiales con guion bajo _
+            $nombreLimpio = preg_replace('/[^a-zA-Z0-9_.]/', '_', $nombreArchivo);
 
-        // Guardar el archivo en la ruta especificada
-        $archivo->move('C:/Users/gms44/aplication/src/assets/logoTipos/', $rutaArchivo);
+            // También puedes eliminar los caracteres especiales completamente
+            // $nombreLimpio = preg_replace('/[^a-zA-Z0-9_.]/', '', $nombreArchivo);
+
+            $nombreGuardado = pathinfo($nombreLimpio, PATHINFO_FILENAME) . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+
+            // Guardar el archivo en la carpeta especificada
+            $rutaArchivo = $nombreGuardado;
+            //$archivo->move('C:/Users/gms44/aplication/src/assets/logoTipos/', $nombreGuardado);
+        } else {
+            $rutaArchivo = null;
+        }
+
+
 
 
         // Hacemos la consulta para guardar los datos
         $company = new Company();
         $company->name = $request->name;
         $company->email = $request->email;
-        $company->logo = $rutaArchivo;
+        $company->logo = $base64;
         $company->website = $request->website;
         $company->save();
 
@@ -198,12 +209,15 @@ class companyController extends Controller
         $nombreGuardado = pathinfo($nombreArchivo, PATHINFO_FILENAME) . '_' . time() . '.' . $extension; // Generar un nombre único para el archivo
         $rutaArchivo = $nombreGuardado; // Ruta donde se guardará el archivo
 
+        // Obtener el contenido base64 del archivo
+        $base64 = base64_encode(file_get_contents($archivo));
+
         // Guardar el archivo en la ruta especificada
-        $archivo->move('C:/Users/gms44/aplication/src/assets/logoTipos/', $rutaArchivo);
+        //$archivo->move('C:/Users/gms44/aplication/src/assets/logoTipos/', $rutaArchivo);
 
         $company->name = $request->name;
         $company->email = $request->email;
-        $company->logo = $rutaArchivo;
+        $company->logo = $base64;
         $company->website = $request->website;
         $company->save();
 

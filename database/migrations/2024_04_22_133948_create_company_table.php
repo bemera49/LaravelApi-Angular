@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('logo')->nullable();
+            // que sea longtext para que pueda almacenar la url de la imagen
+            $table->longText('logo')->nullable();
             $table->string('website')->nullable();
             $table->timestamps();
         });
